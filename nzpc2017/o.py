@@ -1,6 +1,8 @@
 from collections import defaultdict
 from functools import total_ordering
 
+block = 0
+
 @total_ordering
 class Query:
     low: int 
@@ -13,11 +15,11 @@ class Query:
         self.i = i
 
     def __eq__(self, other):
-        return self.low == other.low and self.high == other.high
+        return self.low // block == other.low // block and self.high == other.high
 
     def __lt__(self, other):
-        if self.low != other.low:
-            return self.low < other.low
+        if self.low // block != other.low // block:
+            return self.low // block < other.low // block
         return self.high < other.high
 
 def solve(skills, queries, target):
@@ -75,9 +77,9 @@ def solve(skills, queries, target):
             # print('high up')
             # print(freq)
 
-        # while low > q.low:
-        #     low -= 1
-        #     add_skill(low)
+        while low > q.low:
+            low -= 1
+            add_skill(low)
 
         assert low == q.low
         assert high == q.high
@@ -93,13 +95,19 @@ def ints():
     return [int(x) for x in input().split()]
 
 def main():
+    global block
+
     num_students, num_queries, target = ints() 
     if num_students == 0: return False
     skills = ints()
 
+    block = int(num_students**0.5)
+
     queries = [] 
     for i in range(num_queries):
         low, high = ints()
+        if low > high:
+            low, high = high, low
         queries.append(Query(low - 1, high - 1, i))
 
     for x in solve(skills, queries, target):
